@@ -138,6 +138,7 @@ SRC_C = \
 	uart.c \
 	can.c \
 	usb.c \
+	c_sample.c \
 	gccollect.c \
 	pybstdio.c \
 	help.c \

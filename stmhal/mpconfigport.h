@@ -119,6 +119,7 @@ extern const struct _mp_obj_module_t mp_module_utime;
 extern const struct _mp_obj_module_t mp_module_uselect;
 extern const struct _mp_obj_module_t mp_module_usocket;
 extern const struct _mp_obj_module_t mp_module_network;
+extern const struct _mp_obj_module_t mp_module_c_sample;
 
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_OBJ_NEW_QSTR(MP_QSTR_umachine), (mp_obj_t)&machine_module }, \
@@ -129,6 +130,7 @@ extern const struct _mp_obj_module_t mp_module_network;
     { MP_OBJ_NEW_QSTR(MP_QSTR_uselect), (mp_obj_t)&mp_module_uselect }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR_usocket), (mp_obj_t)&mp_module_usocket }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR_network), (mp_obj_t)&mp_module_network }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_c_sample), (mp_obj_t)&mp_module_c_sample }, \
 
 #define MICROPY_PORT_BUILTIN_MODULE_WEAK_LINKS \
     { MP_OBJ_NEW_QSTR(MP_QSTR_binascii), (mp_obj_t)&mp_module_ubinascii }, \
@@ -188,6 +190,9 @@ extern const struct _mp_obj_module_t mp_module_network;
     \
     /* list of registered NICs */ \
     mp_obj_list_t mod_network_nic_list; \
+    \
+    /* C Sample callback obj */ \
+    mp_obj_t c_sample_callback_obj; \
 
 // type definitions for the specific machine
 
