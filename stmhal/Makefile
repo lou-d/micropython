@@ -249,6 +249,9 @@ SRC_MOD += $(addprefix $(CC3000_DIR)/src/,\
 	)
 endif
 
+CFLAGS_MOD += -DMICROPY_PY_TFT=1
+SRC_MOD += ST7735.c
+
 OBJ =
 OBJ += $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_LIB:.c=.o))
