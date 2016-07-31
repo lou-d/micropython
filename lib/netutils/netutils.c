@@ -58,6 +58,7 @@ mp_obj_t netutils_format_inet_addr(uint8_t *ip, mp_uint_t port, netutils_endian_
 void netutils_parse_ipv4_addr(mp_obj_t addr_in, uint8_t *out_ip, netutils_endian_t endian) {
     mp_uint_t addr_len;
     const char *addr_str = mp_obj_str_get_data(addr_in, &addr_len);
+    printf("netutils_parse_ipv4_addr('%s')\n", addr_str);
     if (addr_len == 0) {
         // special case of no address given
         memset(out_ip, 0, NETUTILS_IPV4ADDR_BUFSIZE);
@@ -76,6 +77,7 @@ void netutils_parse_ipv4_addr(mp_obj_t addr_in, uint8_t *out_ip, netutils_endian
             out_ip[NETUTILS_IPV4ADDR_BUFSIZE - 1 - i] = val;
         }
         if (i == 0 && s == s_top) {
+            printf("  parsed: %d.%d.%d.%d\n", out_ip[0], out_ip[1], out_ip[2], out_ip[3]);
             return;
         } else if (i > 0 && s < s_top && *s == '.') {
             s++;
@@ -83,6 +85,7 @@ void netutils_parse_ipv4_addr(mp_obj_t addr_in, uint8_t *out_ip, netutils_endian
             nlr_raise(mp_obj_new_exception_msg(&mp_type_ValueError, "invalid arguments"));
         }
     }
+    printf("  parsed(2): %d.%d.%d.%d\n", out_ip[0], out_ip[1], out_ip[2], out_ip[3]);
 }
 
 // Takes an address of the form ('192.168.0.1', 8080), returns the port and
