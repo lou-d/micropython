@@ -28,11 +28,11 @@ script:
   - make -C stmhal BOARD=NETDUINO_PLUS_2
   - make -C stmhal BOARD=STM32F7DISC
   - make -C stmhal BOARD=STM32F429DISC
+  - make -C stmhal BOARD=STM32L476DISC
   - make -C stmhal -B DEBUG=1
   # The following (as of Feb 14, 2015 - fills flash)
   # make -C stmhal -B DEBUG=1 MICROPY_PY_WIZNET5K=1 MICROPY_PY_CC3K=1
   - make -C stmhal -B DEBUG=1 BOARD=STM32F4DISC
-  - make -C stmhal -B DEBUG=1 BOARD=ESPRUINO_PICO
   - make -C stmhal -B DEBUG=1 BOARD=CERB40
   - make -C stmhal -B DEBUG=1 BOARD=NETDUINO_PLUS_2
   - make -C stmhal -B DEBUG=1 BOARD=STM32F7DISC
