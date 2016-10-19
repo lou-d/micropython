@@ -12,6 +12,8 @@
 #define MICROPY_MPHALPORT_H     "teensy_hal.h"
 #define MICROPY_PIN_DEFS_PORT_H "pin_defs_teensy.h"
 
+#define MICROPY_HW_NUM_ADCS         (2)
+
 // options to control how Micro Python is built
 
 #define MICROPY_ALLOC_PATH_MAX      (128)
@@ -115,6 +117,7 @@ extern const struct _mp_obj_module_t mp_module_uos;
     struct _pyb_uart_obj_t *pyb_stdio_uart; \
     /* pointers to all UART objects (if they have been created) */ \
     struct _pyb_uart_obj_t *pyb_uart_obj_all[MICROPY_HW_NUM_UARTS]; \
+    struct _pyb_adc_obj_t *pyb_adc_obj_all[MICROPY_HW_NUM_ADCS]; \
 
 // type definitions for the specific machine
 
