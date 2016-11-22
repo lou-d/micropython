@@ -26,6 +26,7 @@
 #include "extmod/fsusermount.h"
 #include "sdcard.h"
 #include "modmachine.h"
+#include "usb.h"
 
 extern uint32_t _heap_start;
 
@@ -159,6 +160,8 @@ soft_reset:
     readline_init0();
 
     pin_init0();
+
+    usb_init0();
 
 #if MICROPY_HW_HAS_SDCARD
     // if an SD card is present then mount it on /sd/

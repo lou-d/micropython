@@ -67,6 +67,7 @@ CFLAGS = $(INC) -Wall -Wpointer-arith -ansi -std=gnu99 -nostdlib $(CFLAGS_CORTEX
 CFLAGS += $(CFLAGS_TEENSY) $(CFLAGS_MCU_$(MCU_SERIES)) $(CFLAGS_BOARD)
 LDFLAGS = -nostdlib -T $(LD_FILE) $(LDFLAGS_MCU_$(MCU_SERIES)) -Wl,--defsym=__rtc_localtime=$(shell $(PYTHON) ./rtc_localtime.py)
 
+CFLAGS += -DSTM32_HAL_H='"stm32hal.h"'
 CFLAGS += -DMICROPY_HW_HAS_SDCARD=$(MICROPY_HW_HAS_SDCARD)
 
 ifeq ($(USE_ARDUINO_TOOLCHAIN),1)
@@ -126,9 +127,11 @@ SRC_C = \
 	usb.c \
 
 STM_SRC_C = $(addprefix stmhal/,\
+	bufhelper.c \
 	gccollect.c \
 	input.c \
 	irq.c \
+	pendsv.c \
 	pin.c \
 	pin_named_pins.c \
 	pybstdio.c \

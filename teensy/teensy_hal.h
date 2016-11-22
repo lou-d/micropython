@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <mk20dx128.h>
 #include "hal_ftm.h"
+#include "stm32hal.h"
 
 #define HAL_MAX_DELAY 0xffffffff
 
@@ -13,7 +14,7 @@
   #define assert_param(expr) ((void)0)
 #endif /* USE_FULL_ASSERT */
 
-#define HAL_NVIC_EnableIRQ(irq)    NVIC_ENABLE_IRQ(irq)
+//#define HAL_NVIC_EnableIRQ(irq)    NVIC_ENABLE_IRQ(irq)
 
 #define GPIOA   ((GPIO_TypeDef *)&GPIOA_PDOR)
 #define GPIOB   ((GPIO_TypeDef *)&GPIOB_PDOR)

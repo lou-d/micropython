@@ -7,8 +7,7 @@ try:
     os.stat('/sd/boot.py')
     execfile('/sd/boot.py')
 except:
-
-    print("Executing boot.py")
+    print("Executing frozen boot.py")
 
     def pins():
         for pin_name in dir(pyb.Pin.board):
@@ -19,3 +18,8 @@ except:
         for pin_name in dir(pyb.Pin.board):
             pin = pyb.Pin(pin_name)
             print('{:10s} {:s}'.format(pin_name, str(pin.af_list())))
+
+    def cat(filename):
+        with open(filename, 'rb') as f:
+            for line in f:
+                print(line)

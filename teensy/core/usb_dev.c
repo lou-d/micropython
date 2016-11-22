@@ -45,6 +45,9 @@
 #include "usb_mem.h"
 #include <string.h> // for memset
 
+#include <stdbool.h>
+#include "pendsv.h"
+
 // buffer descriptor table
 
 typedef struct {
@@ -840,7 +843,36 @@ void _reboot_Teensyduino_(void)
 	__asm__ volatile("bkpt");
 }
 
+static int user_interrupt_char = -1;
+static void *user_interrupt_data = NULL;
 
+void usb_dev_set_interrupt_char(int ch, void *data) {
+	user_interrupt_char = ch;
+	user_interrupt_data = data;
+}
+
+static void process_interrupt_char(usb_packet_t *packet) {
+	if (user_interrupt_char < 0) {
+		return;
+	}
+
+	bool char_found = false;
+	uint8_t *dest = packet->buf;
+	uint8_t *src = packet->buf;
+	uint8_t *end = &packet->buf[packet->len];
+	for (; src < end; src++) {
+		if (*src == user_interrupt_char) {
+			char_found = true;
+			packet->len--;
+			pendsv_nlr_jump(user_interrupt_data);
+		} else {
+			if (char_found) {
+				*dest = *src;
+			}
+			dest++;
+		}
+	}
+}
 
 void usb_isr(void)
 {
@@ -978,6 +1010,7 @@ void usb_isr(void)
 				}
 			} else { // receive
 				packet->len = b->desc >> 16;
+				process_interrupt_char(packet);
 				if (packet->len > 0) {
 					packet->index = 0;
 					packet->next = NULL;
