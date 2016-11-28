@@ -215,7 +215,7 @@ endif
 CFLAGS += -DMICROPY_MODULE_FROZEN_STR
 
 ifeq ($(MICROPY_HW_HAS_SDCARD),1)
-SRC_C += stmhal/lexerfatfs.c stmhal/import.c
+SRC_C += stmhal/import.c
 else
 SRC_C += lexerfrozen.c
 endif

@@ -44,6 +44,7 @@
 #define MICROPY_FATFS_VOLUMES           (4)
 #define MICROPY_FATFS_MULTI_PARTITION   (1)
 #define MICROPY_FSUSERMOUNT             (1)
+#define MICROPY_READER_FATFS            (1)
 
 #define MICROPY_PERSISTENT_CODE_LOAD    (1)
 #define MICROPY_PY_UOS                  (1)

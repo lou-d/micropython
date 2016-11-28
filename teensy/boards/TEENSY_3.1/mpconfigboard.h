@@ -1,7 +1,6 @@
-// The following would be from a board specific file, if one existed
-
 #define MICROPY_HW_BOARD_NAME       "Teensy-3.1"
 #define MICROPY_HW_MCU_NAME         "MK20DX256"
+#define MICROPY_PY_SYS_PLATFORM     "teensy-3.1"
 
 // MICROPY_HW_HAS_SDCARD comes from mpconfigboard.mk
 
