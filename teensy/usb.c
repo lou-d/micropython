@@ -4,7 +4,7 @@
 
 #include "usb.h"
 #include "usb_serial.h"
-#include "pybioctl.h"
+#include "teensy_hal.h"
 
 // Added to core/usb_dev.c
 void usb_dev_set_interrupt_char(int ch, void *data);
@@ -47,6 +47,31 @@ int usb_vcp_recv_byte(uint8_t *ptr)
     return 1;
 }
 
+// This is the only routine which should call usb_serial_write
+mp_uint_t usb_serial_tx(const void *buf_in, mp_uint_t size) {
+    mp_uint_t remaining = size;
+    const uint8_t *buf = buf_in;
+
+    while (remaining > 0) {
+        int bytes_to_write = usb_serial_write_buffer_free();
+        if (bytes_to_write > 0) {
+            if (bytes_to_write > remaining) {
+                bytes_to_write = remaining;
+            }
+            int rc = usb_serial_write(buf, bytes_to_write);
+            if (rc < 0) {
+                return 0;
+            }
+
+            remaining -= bytes_to_write;
+            buf += bytes_to_write;
+        } else {
+            __WFI();
+        }
+    }
+    return size;
+}
+
 void usb_vcp_send_str(const char* str)
 {
     usb_vcp_send_strn(str, strlen(str));
@@ -54,16 +79,31 @@ void usb_vcp_send_str(const char* str)
 
 void usb_vcp_send_strn(const char* str, int len)
 {
-    usb_serial_write(str, len);
+    usb_serial_tx(str, len);
 }
 
 void usb_vcp_send_strn_cooked(const char *str, int len)
 {
+    const char *segment = NULL;
+    int seg_len = 0;
+
     for (const char *top = str + len; str < top; str++) {
         if (*str == '\n') {
-            usb_serial_putchar('\r');
+            if (segment) {
+                usb_serial_tx(segment, seg_len);
+                segment = NULL;
+                seg_len = 0;
+            }
+            usb_serial_tx("\r\n", 2);
         }
-        usb_serial_putchar(*str);
+        if (!segment) {
+            segment = str;
+            seg_len = 0;
+        }
+        seg_len++;
+    }
+    if (segment) {
+        usb_serial_tx(segment, seg_len);
     }
 }
 
@@ -143,11 +183,7 @@ STATIC mp_obj_t pyb_usb_vcp_send(mp_uint_t n_args, const mp_obj_t *args, mp_map_
     pyb_buf_get_for_send(vals[0].u_obj, &bufinfo, data);
 
     // send the data
-    int rc = usb_serial_write(bufinfo.buf, bufinfo.len);
-    if (rc < 0) {
-        return mp_obj_new_int(0);
-    }
-    return mp_obj_new_int(bufinfo.len);
+    return mp_obj_new_int(usb_serial_tx(bufinfo.buf, bufinfo.len));
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_usb_vcp_send_obj, 1, pyb_usb_vcp_send);
 
@@ -210,47 +246,35 @@ STATIC const mp_map_elem_t pyb_usb_vcp_locals_dict_table[] = {
 STATIC MP_DEFINE_CONST_DICT(pyb_usb_vcp_locals_dict, pyb_usb_vcp_locals_dict_table);
 
 STATIC mp_uint_t pyb_usb_vcp_read(mp_obj_t self_in, void *buf, mp_uint_t size, int *errcode) {
-    int bytes_avail = usb_serial_available();
-    if (bytes_avail == 0) {
+    int bytes_read = usb_serial_read(buf, size);
+    if (bytes_read == 0) {
         // return EAGAIN error to indicate non-blocking
         *errcode = MP_EAGAIN;
         return MP_STREAM_ERROR;
     }
-    if (size > bytes_avail) {
-        size = bytes_avail;
-    }
-    int bytes_read = usb_serial_read(buf, size);
     return bytes_read;
 }
 
 STATIC mp_uint_t pyb_usb_vcp_write(mp_obj_t self_in, const void *buf, mp_uint_t size, int *errcode) {
-    int space_avail = usb_serial_write_buffer_free();
-    if (space_avail == 0) {
+    int ret = usb_serial_tx(buf, size);
+    if (ret == 0) {
         // return EAGAIN error to indicate non-blocking
         *errcode = MP_EAGAIN;
         return MP_STREAM_ERROR;
     }
-    if (size > space_avail) {
-        size = space_avail;
-    }
-    int rc = usb_serial_write(buf, size);
-    if (rc < 0) {
-        *errcode = MP_EIO;
-        return MP_STREAM_ERROR;
-    }
-    return size;
+    return ret;
 }
 
 STATIC mp_uint_t pyb_usb_vcp_ioctl(mp_obj_t self_in, mp_uint_t request, mp_uint_t arg, int *errcode) {
     mp_uint_t ret;
-    if (request == MP_IOCTL_POLL) {
+    if (request == MP_STREAM_POLL) {
         mp_uint_t flags = arg;
         ret = 0;
-        if ((flags & MP_IOCTL_POLL_RD) && usb_serial_available() > 0) {
-            ret |= MP_IOCTL_POLL_RD;
+        if ((flags & MP_STREAM_POLL_RD) && usb_serial_available() > 0) {
+            ret |= MP_STREAM_POLL_RD;
         }
-        if ((flags & MP_IOCTL_POLL_WR) && usb_serial_write_buffer_free() > 0) {
-            ret |= MP_IOCTL_POLL_WR;
+        if ((flags & MP_STREAM_POLL_WR) && usb_serial_write_buffer_free() > 0) {
+            ret |= MP_STREAM_POLL_WR;
         }
     } else {
         *errcode = MP_EINVAL;

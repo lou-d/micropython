@@ -33,7 +33,6 @@
 #include "py/mphal.h"
 #include "bufhelper.h"
 #include "irq.h"
-#include "pybioctl.h"
 #include "pin.h"
 #include "genhdr/pins.h"
 #include "uart.h"
@@ -867,16 +866,16 @@ STATIC mp_uint_t pyb_uart_write(mp_obj_t self_in, const void *buf_in, mp_uint_t 
 STATIC mp_uint_t pyb_uart_ioctl(mp_obj_t self_in, mp_uint_t request, mp_uint_t arg, int *errcode) {
     pyb_uart_obj_t *self = self_in;
     mp_uint_t ret;
-    if (request == MP_IOCTL_POLL) {
+    if (request == MP_STREAM_POLL) {
         mp_uint_t flags = arg;
         ret = 0;
-        if ((flags & MP_IOCTL_POLL_RD) && uart_rx_any(self)) {
+        if ((flags & MP_STREAM_POLL_RD) && uart_rx_any(self)) {
             // rx data is available
-            ret |= MP_IOCTL_POLL_RD;
+            ret |= MP_STREAM_POLL_RD;
         }
-        if ((flags & MP_IOCTL_POLL_WR) && (self->uart->S1 & UART_S1_TDRE) != 0) {
+        if ((flags & MP_STREAM_POLL_WR) && (self->uart->S1 & UART_S1_TDRE) != 0) {
             // tx space is available
-            ret |= MP_IOCTL_POLL_WR;
+            ret |= MP_STREAM_POLL_WR;
         }
     } else {
         *errcode = MP_EINVAL;
