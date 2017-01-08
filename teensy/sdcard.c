@@ -22,8 +22,6 @@ void sdcard_init(void) {
     DSTATUS status = SDHC_InitCard();
 
     card_detected = (status == 0);
-
-    printf("SDHC_Init returned %d\n", status);
 }
 
 bool sdcard_is_present(void) {

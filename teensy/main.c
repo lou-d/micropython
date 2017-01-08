@@ -17,6 +17,7 @@
 
 #include "Arduino.h"
 
+#include "pendsv.h"
 #include "servo.h"
 #include "led.h"
 #include "uart.h"
@@ -137,7 +138,10 @@ int main(void) {
     mp_stack_ctrl_init();
     mp_stack_set_limit((char*)&_ram_end - (char*)&_heap_end - 1024);
 
+    SCB_SHPR3 &= 0x00FFFFFF;    // Set Systick priority to 0
+
     pinMode(LED_BUILTIN, OUTPUT);
+    pendsv_init();
     led_init();
 
 soft_reset:
@@ -162,6 +166,7 @@ soft_reset:
     pin_init0();
 
     usb_init0();
+    uart_init0();
 
 #if MICROPY_HW_HAS_SDCARD
     // if an SD card is present then mount it on /sd/

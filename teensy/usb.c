@@ -95,12 +95,13 @@ void usb_vcp_send_strn_cooked(const char *str, int len)
                 seg_len = 0;
             }
             usb_serial_tx("\r\n", 2);
+        } else {
+            if (!segment) {
+                segment = str;
+                seg_len = 0;
+            }
+            seg_len++;
         }
-        if (!segment) {
-            segment = str;
-            seg_len = 0;
-        }
-        seg_len++;
     }
     if (segment) {
         usb_serial_tx(segment, seg_len);

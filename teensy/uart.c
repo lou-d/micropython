@@ -68,6 +68,12 @@ struct _pyb_uart_obj_t {
     KINETISK_UART_t    *uart;
 };
 
+void uart_init0(void) {
+    for (int i = 0; i < MP_ARRAY_SIZE(MP_STATE_PORT(pyb_uart_obj_all)); i++) {
+        MP_STATE_PORT(pyb_uart_obj_all)[i] = NULL;
+    }
+}
+
 STATIC bool uart_init(pyb_uart_obj_t *self, mp_obj_t pins_list) {
 
     mp_obj_t tx_pin = mp_const_none;
